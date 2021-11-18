@@ -73,9 +73,10 @@ async function main() {
 
     const queuedUrl = await enqueueJob(jobName, params);
 
+    sleep(10)
     const buildUrl = await getBuildUrl(queuedUrl)
     core.info(2);
-    core.info(queuedUrl);
+    core.info(buildUrl);
 
     // Waiting for job completion
     // if (core.getInput('wait') == 'true') {
