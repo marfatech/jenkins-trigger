@@ -1,5 +1,5 @@
 const core = require('@actions/core');
-import fetch from 'node-fetch';
+const fetch = import('node-fetch');
 
 // create auth token for Jenkins API
 const basicAuthString = Buffer.from(`${core.getInput('user_name')}:${core.getInput('api_token')}`).toString('base64');
