@@ -40,8 +40,7 @@ async function enqueueJob(jobName, params = {}) {
   let xhr = new XMLHttpRequest();
 
   xhr.open('POST', url, false);
-  xhr.setRequestHeader(`'Authorization', 'Basic ${basicAuthString}'`);
-  xhr.setRequestHeader(`'Authorization', 'Basic ${basicAuthString}'`);
+  xhr.setRequestHeader('Authorization', `Basic ${basicAuthString}`);
 
   core.info('Send 1')
 
