@@ -37,18 +37,15 @@ async function getBuildUrl(url = '') {
 async function enqueueJob(jobName, params = {}) {
   const jenkinsEndpoint = core.getInput('url');
   const url = `${jenkinsEndpoint}/job/${jobName}/buildWithParameters`;
-  const reqParams = {
-    method: 'POST',
-    headers: {
-      'Authorization': `Basic ${basicAuthString}`
-    },
-    body: params,
-  }
 
-  const response = await fetch(url, reqParams);
+  let xhr = new XMLHttpRequest();
 
-  if (response.ok) {
-    const queueUrl = response.headers.Location;
+  xhr.open('POST', url, false);
+  xhr.setRequestHeader(`'Authorization', 'Basic ${basicAuthString}'`);
+  xhr.send(params);
+
+  if (xhr.status === 201) {
+    const queueUrl = xhr.getResponseHeader('Location');
     return queueUrl;
   }
   else {
