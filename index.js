@@ -41,9 +41,16 @@ async function enqueueJob(jobName, params = {}) {
 
   xhr.open('POST', url, false);
   xhr.setRequestHeader(`'Authorization', 'Basic ${basicAuthString}'`);
+
+  core.info('Send 1')
+
   xhr.send();
 
+  core.info('Send  2')
+
   if (xhr.status === 201) {
+    core.info('Send 3')
+    core.info(xhr.getResponseHeader('Location'))
     const queueUrl = xhr.getResponseHeader('Location');
     return queueUrl;
   }
@@ -58,7 +65,7 @@ async function main() {
     const startTs = + new Date();
     const jobName = core.getInput('job_name');
     core.info(core.getInput('parameter').toString());
-    core.info(JSON.parse(core.getInput('parameter')).toString());
+    core.info(JSON.parse(core.getInput('parameter')).ARAMUZ_BRANCH.toString());
     if (core.getInput('parameter')) {
       params = JSON.parse(core.getInput('parameter'));
       core.info(`>>> Parameter ${params.toString()}`);
