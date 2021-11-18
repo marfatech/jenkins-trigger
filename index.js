@@ -46,10 +46,11 @@ async function enqueueJob(jobName, params = {}) {
 
   core.info(xhr.responseText)
   core.info(xhr.responseURL)
+  core.info(xhr.get)
   core.info(xhr.status)
 
-  if (true) {
-    const queueUrl = xhr.getRequestHeader('Location')
+  if (xhr.status === 201) {
+    const queueUrl = xhr.getResponseHeader('Location')
     core.info("Enqueued job: " + queueUrl)
     return queueUrl;
   }
