@@ -16,16 +16,15 @@ const sleep = (seconds) => {
 };
 
 async function getBuildUrl(url = '') {
-  const requestParams = {
-    headers: {
-      'Authorization': `Basic ${basicAuthString}`
-    }
-  }
   const endpoint = url + 'api/json'
-  const response = await fetch(endpoint, requestParams);
+  let xhr = new XMLHttpRequest();
+  xhr.open('GET', endpoint, false);
+  xhr.setRequestHeader(`'Authorization', 'Basic ${basicAuthString}'`);
+  xhr.send();
+  xhr.responseType = 'json';
 
-  if (response.ok) {
-    const res = response.json();
+  if (xhr.status === 200) {
+    const res = xhr.response;
     const buildUrl = res.executable.url;
     return buildUrl;
   }
@@ -42,7 +41,7 @@ async function enqueueJob(jobName, params = {}) {
 
   xhr.open('POST', url, false);
   xhr.setRequestHeader(`'Authorization', 'Basic ${basicAuthString}'`);
-  xhr.send(params);
+  xhr.send();
 
   if (xhr.status === 201) {
     const queueUrl = xhr.getResponseHeader('Location');
