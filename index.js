@@ -52,25 +52,6 @@ async function enqueueJob(jobName, params = {}) {
   }
 }
 
-
-async function waitJenkinsJob(jobName, timestamp) {
-  core.info(`>>> Waiting for "${jobName}" ...`);
-  while (true) {
-    let data = await getJobStatus(jobName);
-    if (data.timestamp < timestamp) {
-      core.info(`>>> Job is not started yet... Wait 5 seconds more...`)
-    } else if (data.result == "SUCCESS") {
-      core.info(`>>> Job "${data.fullDisplayName}" successfully completed!`);
-      break;
-    } else if (data.result == "FAILURE" || data.result == "ABORTED") {
-      throw new Error(`Failed job ${data.fullDisplayName}`);
-    } else {
-      core.info(`>>> Current Duration: ${data.duration}. Expected: ${data.estimatedDuration}`);
-    }
-    await sleep(5); // API call interval
-  }
-}
-
 async function main() {
   try {
     let params = {};
