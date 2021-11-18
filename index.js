@@ -16,34 +16,41 @@ const sleep = (seconds) => {
 };
 
 async function getBuildUrl(url = '') {
-  const endpoint = url + 'api/json'
-  core.info(endpoint)
-  let xhr = new XMLHttpRequest();
-  xhr.open('GET', endpoint, false);
-  xhr.setRequestHeader('Authorization', `Basic ${basicAuthString}`);
-  xhr.responseType = 'json';
-  xhr.send();
+  const getQueueItemRequest = (path) => {
+    let xhr = new XMLHttpRequest();
+    xhr.open('GET', path, false);
+    xhr.setRequestHeader('Authorization', `Basic ${basicAuthString}`);
+    xhr.send();
+    return xhr;
+  }
 
+  let endpoint = url + 'api/json'
+  core.info(endpoint)
+  let xhr = getQueueItemRequest(endpoint)
   if (xhr.status === 301) {
     const redirectTo = xhr.getResponseHeader('location')
-    xhr = new XMLHttpRequest();
-    xhr.open('GET', redirectTo, false);
-    xhr.setRequestHeader('Authorization', `Basic ${basicAuthString}`);
-    xhr.responseType = 'json';
-    xhr.send();
+    endpoint = redirectTo
+    xhr = getQueueItemRequest(endpoint)
   }
 
-  core.info(xhr.responseText)
+  while (xhr.status === 200) {
+    const res = JSON.parse(xhr.responseText);
 
-  if (xhr.status === 200) {
-    const res = xhr.response;
-    core.info(res)
-    const buildUrl = res.executable.url;
-    core.info(buildUrl)
-    return buildUrl;
-  }
-  else {
-    await Promise.reject('1');
+    if (res['_class'] === 'hudson.model.Queue$WaitingItem') {
+      core.info('Build in queue')
+      sleep(10);
+      xhr = getQueueItemRequest(endpoint)
+    }
+    else if (res['_class'] === 'hudson.model.Queue$LeftItem') {
+      const buildUrl = res['executable'].url;
+      core.info('Building started: ' + buildUrl)
+      return buildUrl;
+    }
+    else {
+      core.info('Unknown item status')
+      core.info(xhr.responseText)
+      Promise.reject('Unknown item status');
+    }
   }
 }
 
