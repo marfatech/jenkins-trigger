@@ -1,8 +1,7 @@
-const request = require('request');
 const core = require('@actions/core');
 
 // create auth token for Jenkins API
-const API_TOKEN = Buffer.from(`${core.getInput('user_name')}:${core.getInput('api_token')}`).toString('base64');
+const basicAuthString = Buffer.from(`${core.getInput('user_name')}:${core.getInput('api_token')}`).toString('base64');
 
 let timer = setTimeout(() => {
   core.setFailed("Job Timeout");
@@ -15,49 +14,48 @@ const sleep = (seconds) => {
   });
 };
 
-async function requestJenkinsJob(jobName, params) {
-  const jenkinsEndpoint = core.getInput('url');
-  const req = {
-    method: 'POST',
-    url: `${jenkinsEndpoint}/job/${jobName}/buildWithParameters`,
-    form: params,
+async function getBuildUrl(url = '') {
+  const requestParams = {
     headers: {
-      'Authorization': `Basic ${API_TOKEN}`
+      'Authorization': `Basic ${basicAuthString}`
     }
   }
-  await new Promise((resolve, reject) => request(req)
-    .on('response', (res) => {
-      core.info(`>>> Job is started!`);
-      resolve();
-    })
-    .on("error", (err) => {
-      core.setFailed(err);
-      core.error(JSON.stringify(err));
-      clearTimeout(timer);
-      reject();
-    })
-  );
+  const endpoint = url + 'api/json'
+  const response = await fetch(endpoint, requestParams);
+
+  if (response.ok) {
+    const res = response.json();
+    const buildUrl = res.executable.url;
+    return buildUrl;
+  }
+  else {
+    await Promise.reject(response.error());
+  }
 }
 
-async function getJobStatus(jobName) {
+async function enqueueJob(jobName, params = {}) {
   const jenkinsEndpoint = core.getInput('url');
-  const req = {
-    method: 'get',
-    url: `${jenkinsEndpoint}/job/${jobName}/lastBuild/api/json`,
+  const url = `${jenkinsEndpoint}/job/${jobName}/buildWithParameters`;
+  const reqParams = {
+    method: 'POST',
     headers: {
-      'Authorization': `Basic ${API_TOKEN}`
-    }
+      'Authorization': `Basic ${basicAuthString}`
+    },
+    body: params,
   }
-  return new Promise((resolve, reject) =>
-      request(req, (err, res, body) => {
-        if (err) {
-          clearTimeout(timer);
-          reject(err);
-        }
-        resolve(JSON.parse(body));
-      })
-    );
+
+  const response = await fetch(url, reqParams);
+
+  if (response.ok) {
+    const queueUrl = response.headers.Location;
+    return queueUrl;
+  }
+  else {
+    await Promise.reject(response.error());
+  }
 }
+
+
 async function waitJenkinsJob(jobName, timestamp) {
   core.info(`>>> Waiting for "${jobName}" ...`);
   while (true) {
@@ -79,19 +77,24 @@ async function waitJenkinsJob(jobName, timestamp) {
 async function main() {
   try {
     let params = {};
-    let startTs = + new Date();
-    let jobName = core.getInput('job_name');
+    const startTs = + new Date();
+    const jobName = core.getInput('job_name');
     if (core.getInput('parameter')) {
       params = JSON.parse(core.getInput('parameter'));
       core.info(`>>> Parameter ${params.toString()}`);
     }
     // POST API call
-    await requestJenkinsJob(jobName, params);
+    const queuedUrl = await enqueueJob(jobName, params);
+    core.info(1);
+    core.info(queuedUrl);
+    const buildUrl = await getBuildUrl(queuedUrl)
+    core.info(2);
+    core.info(queuedUrl);
 
     // Waiting for job completion
-    if (core.getInput('wait') == 'true') {
-      await waitJenkinsJob(jobName, startTs);
-    }
+    // if (core.getInput('wait') == 'true') {
+    //   await waitJenkinsJob(jobName, startTs);
+    // }
   } catch (err) {
     core.setFailed(err.message);
     core.error(err.message);
