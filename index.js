@@ -57,8 +57,8 @@ async function main() {
     let params = {};
     const startTs = + new Date();
     const jobName = core.getInput('job_name');
-    core.info(core.getInput('parameter'));
-    core.info(JSON.parse(core.getInput('parameter')));
+    core.info(core.getInput('parameter').toString());
+    core.info(JSON.parse(core.getInput('parameter')).toString());
     if (core.getInput('parameter')) {
       params = JSON.parse(core.getInput('parameter'));
       core.info(`>>> Parameter ${params.toString()}`);
