@@ -21,6 +21,7 @@ async function getBuildUrl(url = '') {
   let xhr = new XMLHttpRequest();
   xhr.open('GET', endpoint, false);
   xhr.setRequestHeader('Authorization', `Basic ${basicAuthString}`);
+  xhr.responseType = 'json';
   xhr.send();
 
   if (xhr.status === 301) {
@@ -28,13 +29,13 @@ async function getBuildUrl(url = '') {
     xhr = new XMLHttpRequest();
     xhr.open('GET', redirectTo, false);
     xhr.setRequestHeader('Authorization', `Basic ${basicAuthString}`);
+    xhr.responseType = 'json';
     xhr.send();
   }
 
   core.info(xhr.responseText)
 
   if (xhr.status === 200) {
-    xhr.responseType = 'json'
     const res = xhr.response;
     core.info(res)
     const buildUrl = res.executable.url;
