@@ -23,6 +23,11 @@ async function getBuildUrl(url = '') {
   xhr.send();
   xhr.responseType = 'json';
 
+  core.info(xhr.responseText)
+  core.info(xhr.responseURL)
+  core.info(xhr.get)
+  core.info(xhr.status)
+
   if (xhr.status === 200) {
     const res = xhr.response;
     core.info(res)
@@ -43,11 +48,6 @@ async function enqueueJob(jobName, params = {}) {
   xhr.open('POST', url, false);
   xhr.setRequestHeader('Authorization', `Basic ${basicAuthString}`);
   xhr.send();
-
-  core.info(xhr.responseText)
-  core.info(xhr.responseURL)
-  core.info(xhr.get)
-  core.info(xhr.status)
 
   if (xhr.status === 201) {
     const queueUrl = xhr.getResponseHeader('Location')
