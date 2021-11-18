@@ -25,7 +25,8 @@ async function getBuildUrl(url = '') {
 
   if (xhr.status === 301) {
     xhr = new XMLHttpRequest();
-    xhr.open('GET', xhr.getResponseHeader('location'), false);
+    const redirectTo = xhr.getResponseHeader('location')
+    xhr.open('GET', redirectTo, false);
     xhr.setRequestHeader('Authorization', `Basic ${basicAuthString}`);
     xhr.send();
   }
