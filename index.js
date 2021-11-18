@@ -17,16 +17,18 @@ const sleep = (seconds) => {
 
 async function getBuildUrl(url = '') {
   const endpoint = url + 'api/json'
+  core.info(endpoint)
   let xhr = new XMLHttpRequest();
   xhr.open('GET', endpoint, false);
   xhr.setRequestHeader('Authorization', `Basic ${basicAuthString}`);
-  xhr.send();
   xhr.responseType = 'json';
+  xhr.send();
 
   core.info(xhr.responseText)
   core.info(xhr.responseURL)
   core.info(xhr.get)
   core.info(xhr.status)
+  core.info(xhr.getAllResponseHeaders())
 
   if (xhr.status === 200) {
     const res = xhr.response;
