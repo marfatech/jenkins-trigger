@@ -45,7 +45,7 @@ async function enqueueJob(jobName, params = {}) {
   xhr.send();
 
   if (true) {
-    const queueUrl = xhr.responseURL
+    const queueUrl = xhr.getRequestHeader('Location')
     core.info("Enqueued job: " + queueUrl)
     return queueUrl;
   }
