@@ -44,7 +44,7 @@ async function enqueueJob(jobName, params = {}) {
   xhr.setRequestHeader('Authorization', `Basic ${basicAuthString}`);
   xhr.send();
 
-  if (xhr.status === 201) {
+  if (true) {
     const queueUrl = xhr.responseURL
     core.info("Enqueued job: " + queueUrl)
     return queueUrl;
