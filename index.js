@@ -19,13 +19,15 @@ async function getBuildUrl(url = '') {
   const endpoint = url + 'api/json'
   let xhr = new XMLHttpRequest();
   xhr.open('GET', endpoint, false);
-  xhr.setRequestHeader(`'Authorization', 'Basic ${basicAuthString}'`);
+  xhr.setRequestHeader('Authorization', `Basic ${basicAuthString}`);
   xhr.send();
   xhr.responseType = 'json';
 
   if (xhr.status === 200) {
     const res = xhr.response;
+    core.info(res)
     const buildUrl = res.executable.url;
+    core.info(buildUrl)
     return buildUrl;
   }
   else {
@@ -38,26 +40,17 @@ async function enqueueJob(jobName, params = {}) {
   const url = `${jenkinsEndpoint}/job/${jobName}/buildWithParameters`;
 
   let xhr = new XMLHttpRequest();
-
   xhr.open('POST', url, false);
   xhr.setRequestHeader('Authorization', `Basic ${basicAuthString}`);
-
-  core.info('Send 1')
-
   xhr.send();
 
-  core.info(xhr.responseText)
-  core.info(xhr.responseURL)
-  core.info(xhr.status)
-
   if (xhr.status === 201) {
-    core.info('Send 3')
-    core.info(xhr.getResponseHeader('Location'))
-    const queueUrl = xhr.getResponseHeader('Location');
+    const queueUrl = xhr.responseURL
+    core.info("Enqueued job: " + queueUrl)
     return queueUrl;
   }
   else {
-    await Promise.reject('2');
+    await Promise.reject("Cannot start the job");
   }
 }
 
@@ -72,10 +65,9 @@ async function main() {
       params = JSON.parse(core.getInput('parameter'));
       core.info(`>>> Parameter ${params.toString()}`);
     }
-    // POST API call
+
     const queuedUrl = await enqueueJob(jobName, params);
-    core.info(1);
-    core.info(queuedUrl);
+
     const buildUrl = await getBuildUrl(queuedUrl)
     core.info(2);
     core.info(queuedUrl);
