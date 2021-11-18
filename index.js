@@ -23,7 +23,10 @@ async function getBuildUrl(url = '') {
   xhr.setRequestHeader('Authorization', `Basic ${basicAuthString}`);
   xhr.send();
 
-  if (xhr.status === 301) {
+  core.info(xhr.status)
+  core.info(xhr.getAllResponseHeaders())
+
+  if (xhr.status == 301) {
     xhr = new XMLHttpRequest();
     const redirectTo = xhr.getResponseHeader('location')
     xhr.open('GET', redirectTo, false);
@@ -32,8 +35,6 @@ async function getBuildUrl(url = '') {
   }
 
   core.info(xhr.responseText)
-  core.info(xhr.responseURL)
-  core.info(xhr.get)
   core.info(xhr.status)
   core.info(xhr.getAllResponseHeaders())
 
