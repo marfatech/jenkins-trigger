@@ -80,7 +80,7 @@ async function main() {
 
     const queuedUrl = await enqueueJob(jobName, params);
 
-    sleep(10)
+    sleep(20)
     const buildUrl = await getBuildUrl(queuedUrl)
     core.info(2);
     core.info(buildUrl);
