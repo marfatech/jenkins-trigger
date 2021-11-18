@@ -21,7 +21,6 @@ async function getBuildUrl(url = '') {
   let xhr = new XMLHttpRequest();
   xhr.open('GET', endpoint, false);
   xhr.setRequestHeader('Authorization', `Basic ${basicAuthString}`);
-  xhr.responseType = 'json';
   xhr.send();
 
   core.info(xhr.responseText)
