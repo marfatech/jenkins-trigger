@@ -29,7 +29,7 @@ async function getBuildUrl(url = '') {
     return buildUrl;
   }
   else {
-    await Promise.reject(response.error());
+    await Promise.reject('1');
   }
 }
 
@@ -48,7 +48,7 @@ async function enqueueJob(jobName, params = {}) {
     return queueUrl;
   }
   else {
-    await Promise.reject(response.error());
+    await Promise.reject('2');
   }
 }
 
