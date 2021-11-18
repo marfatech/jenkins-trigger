@@ -41,12 +41,15 @@ async function enqueueJob(jobName, params = {}) {
 
   xhr.open('POST', url, false);
   xhr.setRequestHeader(`'Authorization', 'Basic ${basicAuthString}'`);
+  xhr.setRequestHeader(`'Authorization', 'Basic ${basicAuthString}'`);
 
   core.info('Send 1')
 
   xhr.send();
 
-  core.info('Send  2')
+  core.info(xhr.responseText)
+  core.info(xhr.responseURL)
+  core.info(xhr.status)
 
   if (xhr.status === 201) {
     core.info('Send 3')
