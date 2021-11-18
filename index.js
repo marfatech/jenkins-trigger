@@ -23,6 +23,13 @@ async function getBuildUrl(url = '') {
   xhr.setRequestHeader('Authorization', `Basic ${basicAuthString}`);
   xhr.send();
 
+  if (xhr.status === 301) {
+    xhr = new XMLHttpRequest();
+    xhr.open('GET', xhr.getResponseHeader('location'), false);
+    xhr.setRequestHeader('Authorization', `Basic ${basicAuthString}`);
+    xhr.send();
+  }
+
   core.info(xhr.responseText)
   core.info(xhr.responseURL)
   core.info(xhr.get)
@@ -51,7 +58,7 @@ async function enqueueJob(jobName, params = {}) {
   xhr.send();
 
   if (xhr.status === 201) {
-    const queueUrl = xhr.getResponseHeader('Location')
+    const queueUrl = xhr.getResponseHeader('location')
     core.info("Enqueued job: " + queueUrl)
     return queueUrl;
   }
