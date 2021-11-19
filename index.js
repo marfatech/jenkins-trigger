@@ -90,10 +90,12 @@ async function enqueueJob(jobName, params = {}) {
   const jenkinsEndpoint = core.getInput('url');
   const url = `${jenkinsEndpoint}/job/${jobName}/buildWithParameters`;
 
+  const postParams = new URLSearchParams(params);
+
   let xhr = new XMLHttpRequest();
   xhr.open('POST', url, false);
   xhr.setRequestHeader('Authorization', `Basic ${basicAuthString}`);
-  xhr.send();
+  xhr.send(postParams.toString());
 
   if (xhr.status === 201) {
     const queueUrl = xhr.getResponseHeader('location')
