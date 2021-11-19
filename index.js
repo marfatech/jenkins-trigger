@@ -15,6 +15,37 @@ const sleep = (seconds) => {
   });
 };
 
+async function checkBuildStatus(buildUrl) {
+  const getBuildRequest = (path) => {
+    let xhr = new XMLHttpRequest();
+    xhr.open('GET', path, false);
+    xhr.setRequestHeader('Authorization', `Basic ${basicAuthString}`);
+    xhr.send();
+    return xhr;
+  }
+
+  const endpoint = buildUrl + 'api/json'
+
+  let xhr = getBuildRequest(endpoint)
+  let building = true;
+  while (xhr.status === 200) {
+    const res = JSON.parse(xhr.responseText);
+    building = res.building
+    core.info('Build in progress...')
+    if (!building) {
+      if (res.result === 'SUCCESS') {
+        return true
+      }
+      else {
+        await Promise.reject('Build status: ' + res.result)
+      }
+    }
+
+    await sleep(20);
+    xhr = getBuildRequest(endpoint)
+  }
+}
+
 async function getBuildUrl(url = '') {
   const getQueueItemRequest = (path) => {
     let xhr = new XMLHttpRequest();
@@ -39,12 +70,12 @@ async function getBuildUrl(url = '') {
     if (res['_class'] === 'hudson.model.Queue$WaitingItem' ||
         res['_class'] === 'hudson.model.Queue$BuildableItem') {
       core.info('Build in queue')
-      sleep(10);
+      await sleep(10);
       xhr = getQueueItemRequest(endpoint)
     }
     else if (res['_class'] === 'hudson.model.Queue$LeftItem') {
       const buildUrl = res['executable'].url;
-      core.info('Building started: ' + buildUrl)
+      core.info('Build started: ' + buildUrl)
       return buildUrl;
     }
     else {
@@ -83,20 +114,16 @@ async function main() {
     core.info(JSON.parse(core.getInput('parameter')).ARAMUZ_BRANCH.toString());
     if (core.getInput('parameter')) {
       params = JSON.parse(core.getInput('parameter'));
-      core.info(`>>> Parameter ${params.toString()}`);
     }
 
     const queuedUrl = await enqueueJob(jobName, params);
 
-    sleep(20)
     const buildUrl = await getBuildUrl(queuedUrl)
-    core.info(2);
-    core.info(buildUrl);
 
-    // Waiting for job completion
-    // if (core.getInput('wait') == 'true') {
-    //   await waitJenkinsJob(jobName, startTs);
-    // }
+    if (core.getInput('wait') === 'true') {
+      await checkBuildStatus(buildUrl);
+
+    }
   } catch (err) {
     core.setFailed(err.message);
     core.error(err.message);
