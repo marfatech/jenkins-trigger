@@ -95,7 +95,7 @@ async function enqueueJob(jobName, params = {}) {
   let xhr = new XMLHttpRequest();
   xhr.open('POST', url, false);
   xhr.setRequestHeader('Authorization', `Basic ${basicAuthString}`);
-  xhr.send(postParams.toString());
+  xhr.send(JSON.stringify(params));
 
   if (xhr.status === 201) {
     const queueUrl = xhr.getResponseHeader('location')
