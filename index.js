@@ -91,8 +91,6 @@ async function enqueueJob(jobName, params = {}) {
   const postParams = new URLSearchParams(params);
   const url = `${jenkinsEndpoint}/job/${jobName}/buildWithParameters?` + postParams.toString();
 
-  core.info(url)
-
   let xhr = new XMLHttpRequest();
   xhr.open('POST', url, false);
   xhr.setRequestHeader('Authorization', `Basic ${basicAuthString}`);
