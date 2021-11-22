@@ -68,7 +68,8 @@ async function getBuildUrl(url = '') {
     const res = JSON.parse(xhr.responseText);
 
     if (res['_class'] === 'hudson.model.Queue$WaitingItem' ||
-        res['_class'] === 'hudson.model.Queue$BuildableItem') {
+        res['_class'] === 'hudson.model.Queue$BuildableItem' ||
+        res['_class'] === 'hudson.model.Queue$BlockedItem') {
       core.info('Build in queue')
       await sleep(10);
       xhr = getQueueItemRequest(endpoint)
